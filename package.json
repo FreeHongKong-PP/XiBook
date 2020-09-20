@@ -3,9 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "axios": "^0.20.0",
     "npm": "^6.14.8",
     "react": "^16.13.1",
     "react-dom": "^16.6.1",
+    "react-dropzone-uploader": "^2.11.0",
+    "react-images-upload": "^1.2.8",
     "react-scripts": "^3.4.3"
   },
   "scripts": {

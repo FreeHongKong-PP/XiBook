@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef, createContext } from "react"
+import React, { useState, useEffect, useRef, createContext } from "react";
+import axios from 'axios';
+import ImageUploader from 'react-images-upload';
 import './App.css';
 
 function App() {
@@ -7,12 +9,22 @@ function App() {
   const [authorText, setauthorText] = useState('习维尼')
   const [titleText, settitleText] = useState('谈敗国暴政')
   const [journalText,setjournalText] = useState('第六四卷')
-  
+  const [authorPicture, setauthorPicture] = useState(null)
+  const [pictures, setPictures] = useState([]);
+
+  const onDrop = (picture,file) => {
+    console.log(picture)
+    console.log(file)
+    let uploadedImgBase64 = new Image();
+    uploadedImgBase64.onload = () => setauthorPicture(uploadedImgBase64)
+    uploadedImgBase64.src = file[0]
+    // setPictures([picture]);
+  };  
 
   useEffect(() => {
     const xiBookImageTemplate = new Image();
-    xiBookImageTemplate.src = "/images/XiBook_Template.jpg"
     xiBookImageTemplate.onload = () => setImage(xiBookImageTemplate)
+    xiBookImageTemplate.src = "/images/XiBook_Template.jpg" 
   }, [])
 
   useEffect(() => {
@@ -20,7 +32,7 @@ function App() {
       const ctx = canvas.current.getContext("2d")
       ctx.setTransform (1, 0, 0, 1, 0, 0);
       ctx.drawImage(image,0,0)      
-      ctx.fillStyle = "white"
+      ctx.fillStyle = "#fffff7"
       //Book Vertical Bar
       ctx.fillRect(160, 230, 200, 245)
       ctx.setTransform (1, -0.2, 0, 1, 0.2, 0);
@@ -72,8 +84,11 @@ function App() {
 
       ctx.font = "100 13px Noto Sans SC"
       ctx.fillText(chunk(journalText,1,' '), 280, 335)
+
+      ctx.setTransform (1, 0, 0, 1, 0, 0);
+      if(authorPicture) ctx.drawImage(authorPicture,0,0)
     }
-  }, [image, canvas, authorText, titleText,journalText])
+  }, [image, authorPicture,canvas, authorText, titleText,journalText,pictures])
   
   function chunk(str, n, d) {
     var ret = [];
@@ -86,9 +101,7 @@ function App() {
 
     return ret.join(d)
   };
-
-
-  
+ 
   return (
     <div className="vertical-center">
       <h1>談治國理政封面生成器</h1>
@@ -100,6 +113,19 @@ function App() {
         />
       </div>
       <div>
+      <ImageUploader
+                withIcon={true}
+                buttonText='上傳作者頭像'
+                onChange={onDrop}
+                imgExtension={['.jpg', '.png','.webp']}
+                label='最大檔案格式為5mb, 可上傳格式 .jpg , .png  和 .webp'
+                singleImage={true}
+                maxFileSize={5242880}
+                name="upload"
+                fileTypeError='不是支援的檔案格式'
+                defaultImages={['/images/Xi.jpg']}
+            />
+        <br/>
         作者 : 
         <input type="text"
           value={authorText}
