@@ -8,6 +8,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.6.1",
     "react-dropzone-uploader": "^2.11.0",
+    "react-image-crop": "^8.6.5",
     "react-images-upload": "^1.2.8",
     "react-scripts": "^3.4.3",
     "react-switch": "^5.0.1",

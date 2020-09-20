@@ -1,27 +1,99 @@
-import React, { useState, useEffect, useRef, createContext } from "react";
-import axios from 'axios';
-import ImageUploader from 'react-images-upload';
-import Switch from "react-switch";
-import { Button, Icon } from 'semantic-ui-react'
+import React, { useState, useCallback, useRef, useEffect} from "react";
+import ReactCrop from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
+import { Button, Icon,Input,Form, Grid, Container,Header } from 'semantic-ui-react'
 import './App.css';
 
+function chunk(str, n, d) {
+  const REGEX_CHINESE = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/;
+  const hasChinese = str.match(REGEX_CHINESE);
+  if(hasChinese) return str
+
+  let ret = [];
+  let i;
+  let len;
+
+  for(i = 0, len = str.length; i < len; i += n) {
+     ret.push(str.substr(i, n))
+  }
+      
+  return ret.join(d)
+};
+
+// Setting a high pixel ratio avoids blurriness in the canvas crop preview.
+const pixelRatio = 4;
+
+// We resize the canvas down when saving on retina devices otherwise the image
+// will be double or triple the preview size.
+function getResizedCanvas(canvas, newWidth, newHeight) {
+  const tmpCanvas = document.createElement("canvas");
+  tmpCanvas.width = newWidth;
+  tmpCanvas.height = newHeight;
+
+  const ctx = tmpCanvas.getContext("2d");
+  ctx.drawImage(
+    canvas,
+    0,
+    0,
+    canvas.width,
+    canvas.height,
+    0,
+    0,
+    newWidth,
+    newHeight
+  );
+
+  return tmpCanvas;
+}
+
+function generateDownload(previewCanvas, crop) {
+  if (!crop || !previewCanvas) {
+    return;
+  }
+
+  const canvas = getResizedCanvas(previewCanvas, crop.width, crop.height);
+
+  canvas.toBlob(
+    blob => {
+      const previewUrl = window.URL.createObjectURL(blob);
+
+      const anchor = document.createElement("a");
+      anchor.download = "cropPreview.png";
+      anchor.href = URL.createObjectURL(blob);
+      anchor.click();
+
+      window.URL.revokeObjectURL(previewUrl);
+    },
+    "image/png",
+    1
+  );
+}
+
+
 function App() {
+  const [upImg, setUpImg] = useState();
+  const imgRef = useRef(null);
+  const [crop, setCrop] = useState({ unit: "%", width: 30, aspect: 3 / 4 });
+  const [completedCrop, setCompletedCrop] = useState(null);
+
   const [image, setImage] = useState(null)
   const canvas = useRef(null)
   const [authorText, setauthorText] = useState('习维尼')
   const [titleText, settitleText] = useState('谈敗国暴政')
-  const [journalText,setjournalText] = useState('第六四卷')
+  const [journalText,setjournalText] = useState('第六卷')
   const [authorPicture, setauthorPicture] = useState(null)
-  const [pictures, setPictures] = useState([]);
   
-  const onDrop = (picture,file) => {
-    console.log(picture)
-    console.log(file)
-    let uploadedImgBase64 = new Image();
-    uploadedImgBase64.onload = () => setauthorPicture(uploadedImgBase64)
-    uploadedImgBase64.src = file[0]
-    // setPictures([picture]);
-  };  
+  const onSelectFile = e => {
+    if (e.target.files && e.target.files.length > 0) {
+      const reader = new FileReader();
+      reader.addEventListener("load", () => setUpImg(reader.result));
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+  const onLoad = useCallback(img => {
+    imgRef.current = img;
+  }, []);
 
   useEffect(() => {
     const xiBookImageTemplate = new Image();
@@ -101,79 +173,100 @@ function App() {
       ctx.fillText(chunk(journalText,1,' '), 280, 335)
 
       ctx.setTransform (1, 0, 0, 1, 0, 0);
-      if(authorPicture) ctx.drawImage(authorPicture,0,0)
-    }
-  }, [image, authorPicture,canvas, authorText, titleText,journalText,pictures])
+      // if(authorPicture) ctx.drawImage(authorPicture,0,0)
+      if (!completedCrop  || !imgRef.current) {
+        return;
+      }
   
-  function chunk(str, n, d) {
-    const REGEX_CHINESE = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/;
-    const hasChinese = str.match(REGEX_CHINESE);
-    if(hasChinese) return str
-
-    var ret = [];
-    var i;
-    var len;
-
-    for(i = 0, len = str.length; i < len; i += n) {
-       ret.push(str.substr(i, n))
+      const imageCurrentRef = imgRef.current;
+      const crop = completedCrop;
+  
+      const scaleX = imageCurrentRef.naturalWidth / imageCurrentRef.width;
+      const scaleY = imageCurrentRef.naturalHeight / imageCurrentRef.height;
+  
+      ctx.drawImage(
+        imageCurrentRef,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        crop.width * scaleX,
+        crop.height * scaleY,
+        0,
+        0,
+        90,
+        120
+      );
     }
-        
-    return ret.join(d)
-  };
- 
+
+
+  }, [image, authorPicture,canvas, authorText, titleText,journalText,crop,completedCrop])
+  
   return (
-    <div className="vertical-center">
-      <h1 style={{
+    <Container textAlign='center'>
+
+        <Header as='h1' style={{
         backgroundColor :'red',
         color :'yellow'
-      }}>談治國理政封面生成器</h1>
-      <div>
+        }}>談治國理政封面生成器</Header>
+      
+      <Grid columns={2} stackable>
+      <Grid.Row>
+      <Grid.Column>
         <canvas
           ref={canvas}
           width={512}
           height={407}
         />
-      </div>
-      <div>
-      <ImageUploader
-                withIcon={true}
-                buttonText='上傳作者頭像'
-                onChange={onDrop}
-                imgExtension={['.jpg', '.jpeg', '.png','.webp']}
-                label='最大檔案格式為5mb, 可上傳格式 .jpg, .jpeg, .png, .webp' 
-                singleImage={true}
-                maxFileSize={5242880}
-                name="upload"
-                fileTypeError='不是支援的檔案格式'
-                defaultImages={['/images/Xi.jpg']}
+        </Grid.Column>
+        <Grid.Column>
+        <ReactCrop
+          src={upImg}
+          onImageLoaded={onLoad}
+          crop={crop}
+          onChange={c => setCrop(c)}
+          onComplete={c => setCompletedCrop(c)}
+      />
+        </Grid.Column>
+        </Grid.Row>
+      </Grid>
+      <Form>
+        <Form.Field>
+          <label>上傳作者圖片</label>
+          <Input type="file" accept="image/*" onChange={onSelectFile} />
+        </Form.Field>
+        <Form.Field>
+          <label>作者</label>
+          <Input 
+            type="text"
+            value={authorText}
+            maxLength={6}
+            onChange={e => setauthorText(e.target.value)}
+          />
+        </Form.Field>
+        <Form.Field>
+          <label>書名</label>
+          <Input 
+            type="text"
+            value={titleText}
+            maxLength={10}
+            onChange={e => settitleText(e.target.value)}
+          />
+        </Form.Field>
+        <Form.Field>
+          <label>卷數</label>
+          <Input type="text"
+              value={journalText}
+              maxLength={4}
+              onChange={e => setjournalText(e.target.value)}
             />
-        <br/>
-        作者 :   
-        <input type="text"
-          value={authorText}
-          maxLength={6}
-          onChange={e => setauthorText(e.target.value)}
-        />
-        <br />
-        書名 :   
-        <input type="text"
-          value={titleText}
-          maxLength={10}
-          onChange={e => settitleText(e.target.value)}
-        />
-        <br />
-        卷數 :  
-        <input type="text"
-          value={journalText}
-          maxLength={4}
-          onChange={e => setjournalText(e.target.value)}
-        />
-      </div>
+        </Form.Field>
+      </Form>
     <br />
     <h4>談治國理政封面生成器由<Button size='mini' color='twitter' href='https://twitter.com/MasterOfNMSLese'>
         <Icon name='twitter'/>@MasterOfNMSLese</Button>
-      製作</h4>
-    </div>
+      製作</h4>      
+    </Container>
+
+    
   )
 }
 
