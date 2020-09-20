@@ -20,9 +20,6 @@ function chunk(str, n, d) {
   return ret.join(d)
 };
 
-// Setting a high pixel ratio avoids blurriness in the canvas crop preview.
-const pixelRatio = 4;
-
 // We resize the canvas down when saving on retina devices otherwise the image
 // will be double or triple the preview size.
 function getResizedCanvas(canvas, newWidth, newHeight) {
@@ -46,19 +43,15 @@ function getResizedCanvas(canvas, newWidth, newHeight) {
   return tmpCanvas;
 }
 
-function generateDownload(previewCanvas, crop) {
-  if (!crop || !previewCanvas) {
-    return;
-  }
+function generateDownload(canvas) {
+  const newCanvas = getResizedCanvas(canvas,canvas.width,canvas.width);
 
-  const canvas = getResizedCanvas(previewCanvas, crop.width, crop.height);
-
-  canvas.toBlob(
+  newCanvas.toBlob(
     blob => {
       const previewUrl = window.URL.createObjectURL(blob);
 
       const anchor = document.createElement("a");
-      anchor.download = "cropPreview.png";
+      anchor.download = "XiBook.png";
       anchor.href = URL.createObjectURL(blob);
       anchor.click();
 
@@ -78,10 +71,9 @@ function App() {
 
   const [image, setImage] = useState(null)
   const canvas = useRef(null)
-  const [authorText, setauthorText] = useState('习维尼')
-  const [titleText, settitleText] = useState('谈敗国暴政')
-  const [journalText,setjournalText] = useState('第六卷')
-  const [authorPicture, setauthorPicture] = useState(null)
+  const [authorText, setauthorText] = useState('习近平')
+  const [titleText, settitleText] = useState('谈治国理政')
+  const [journalText,setjournalText] = useState('第三卷')
   
   const onSelectFile = e => {
     if (e.target.files && e.target.files.length > 0) {
@@ -105,6 +97,7 @@ function App() {
     if (image && canvas) {
       const ctx = canvas.current.getContext("2d")
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.filter = "none";
       ctx.setTransform (1, 0, 0, 1, 0, 0);
       ctx.drawImage(image,0,0)      
       ctx.fillStyle = "#fffff7"
@@ -132,7 +125,6 @@ function App() {
         ctx.setTransform(0.45, b, 0, 1, 0, 0);
         ctx.fillText(a, spineX, spineYStart)
         spineYStart+=authorTextStep
-        console.log('spineYStart:' + spineYStart)
         b+=0.01
       }
 
@@ -172,34 +164,36 @@ function App() {
       ctx.font = "100 13px Noto Sans SC"
       ctx.fillText(chunk(journalText,1,' '), 280, 335)
 
-      ctx.setTransform (1, 0, 0, 1, 0, 0);
+      // ctx.setTransform (1, 0, 0, 1, 0, 0);
       // if(authorPicture) ctx.drawImage(authorPicture,0,0)
+      // ctx.fillStyle = '#fffff7';
+      // ctx.fillRect(225, 50, 120, 150);
+      // clipArc(ctx, 280, 115, 120, 40);
       if (!completedCrop  || !imgRef.current) {
         return;
       }
-  
       const imageCurrentRef = imgRef.current;
       const crop = completedCrop;
   
       const scaleX = imageCurrentRef.naturalWidth / imageCurrentRef.width;
       const scaleY = imageCurrentRef.naturalHeight / imageCurrentRef.height;
-  
       ctx.drawImage(
         imageCurrentRef,
         crop.x * scaleX,
         crop.y * scaleY,
         crop.width * scaleX,
         crop.height * scaleY,
-        0,
-        0,
-        90,
-        120
-      );
+        225,
+        70,
+        120,
+        160
+      );   
     }
 
 
-  }, [image, authorPicture,canvas, authorText, titleText,journalText,crop,completedCrop])
-  
+
+  }, [image,canvas, authorText, titleText,journalText,crop,completedCrop,imgRef])
+
   return (
     <Container textAlign='center'>
 
@@ -207,7 +201,12 @@ function App() {
         backgroundColor :'red',
         color :'yellow'
         }}>談治國理政封面生成器</Header>
-      
+      <Button
+        disabled={!completedCrop?.width || !completedCrop?.height}
+        onClick={() =>
+          generateDownload(canvas.current, completedCrop)
+        }
+      >下載談治國論政封面</Button>
       <Grid columns={2} stackable>
       <Grid.Row>
       <Grid.Column>
@@ -229,10 +228,6 @@ function App() {
         </Grid.Row>
       </Grid>
       <Form>
-        <Form.Field>
-          <label>上傳作者圖片</label>
-          <Input type="file" accept="image/*" onChange={onSelectFile} />
-        </Form.Field>
         <Form.Field>
           <label>作者</label>
           <Input 
@@ -259,14 +254,16 @@ function App() {
               onChange={e => setjournalText(e.target.value)}
             />
         </Form.Field>
+        <Form.Field>
+          <label>上傳作者圖片</label>
+          <Input type="file" accept="image/*" onChange={onSelectFile} />
+        </Form.Field>
       </Form>
     <br />
     <h4>談治國理政封面生成器由<Button size='mini' color='twitter' href='https://twitter.com/MasterOfNMSLese'>
         <Icon name='twitter'/>@MasterOfNMSLese</Button>
       製作</h4>      
-    </Container>
-
-    
+    </Container>    
   )
 }
 
