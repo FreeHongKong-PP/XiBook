@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, createContext } from "react";
 import axios from 'axios';
 import ImageUploader from 'react-images-upload';
+import Switch from "react-switch";
+import { Button, Icon } from 'semantic-ui-react'
 import './App.css';
 
 function App() {
@@ -11,7 +13,7 @@ function App() {
   const [journalText,setjournalText] = useState('第六四卷')
   const [authorPicture, setauthorPicture] = useState(null)
   const [pictures, setPictures] = useState([]);
-
+  
   const onDrop = (picture,file) => {
     console.log(picture)
     console.log(file)
@@ -43,26 +45,38 @@ function App() {
       ctx.fillRect(126,225,27,135)
 
       //
-      ctx.font = "800 25px Noto Sans SC"
       ctx.fillStyle = "#a60203"
-      let b = - 0.1
-      let spineX =  295     
-      let spineYStart = 85
+      let b = - 0.1;
+      let spineX =  295 ; 
+      let spineYStart = 85;
+
+      //Author Text 
+      let authorTextCount = authorText.length;
+      let authorTextStep = Math.round((190-spineYStart)/authorTextCount);
+      let authorTextfontSize = authorTextCount>4? 22 : authorTextCount<3? 27 : 25;
+      ctx.font = "800 "+authorTextfontSize+"px Noto Sans SC"
       for (let a of authorText){
         ctx.setTransform(0.45, b, 0, 1, 0, 0);
         ctx.fillText(a, spineX, spineYStart)
-        spineYStart+=35
+        spineYStart+=authorTextStep
+        console.log('spineYStart:' + spineYStart)
         b+=0.01
       }
+
+      let titleTextCount = titleText.length;
+      let titleTextStep = Math.round((315-spineYStart+10)/titleTextCount);
+      let titleTextfontSize = titleTextCount>8? 15 : titleTextCount<6? 18 : 17;
+
       spineYStart+=10
-      ctx.font = "600 18px Noto Sans SC"    
+      ctx.font = "600 "+titleTextfontSize+"px Noto Sans SC"    
       for (let t of titleText){
         ctx.setTransform(0.45, b, 0, 1, 0, 0);
         ctx.fillText(t,spineX, spineYStart)
-        spineYStart+=23
+        spineYStart+=titleTextStep
         b+=0.01       
       }
-      spineYStart+=15
+
+      spineYStart+=8
       ctx.font = "100 13px Noto Sans SC"
       for (let j of journalText){
         ctx.setTransform(0.45, b, 0, 1, 0, 0);
@@ -91,6 +105,10 @@ function App() {
   }, [image, authorPicture,canvas, authorText, titleText,journalText,pictures])
   
   function chunk(str, n, d) {
+    const REGEX_CHINESE = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/;
+    const hasChinese = str.match(REGEX_CHINESE);
+    if(hasChinese) return str
+
     var ret = [];
     var i;
     var len;
@@ -98,18 +116,21 @@ function App() {
     for(i = 0, len = str.length; i < len; i += n) {
        ret.push(str.substr(i, n))
     }
-
+        
     return ret.join(d)
   };
  
   return (
     <div className="vertical-center">
-      <h1>談治國理政封面生成器</h1>
+      <h1 style={{
+        backgroundColor :'red',
+        color :'yellow'
+      }}>談治國理政封面生成器</h1>
       <div>
         <canvas
           ref={canvas}
-          width={513}
-          height={408}
+          width={512}
+          height={407}
         />
       </div>
       <div>
@@ -117,8 +138,8 @@ function App() {
                 withIcon={true}
                 buttonText='上傳作者頭像'
                 onChange={onDrop}
-                imgExtension={['.jpg', '.png','.webp']}
-                label='最大檔案格式為5mb, 可上傳格式 .jpg , .png  和 .webp'
+                imgExtension={['.jpg', '.jpeg', '.png','.webp']}
+                label='最大檔案格式為5mb, 可上傳格式 .jpg, .jpeg, .png, .webp' 
                 singleImage={true}
                 maxFileSize={5242880}
                 name="upload"
@@ -126,25 +147,31 @@ function App() {
                 defaultImages={['/images/Xi.jpg']}
             />
         <br/>
-        作者 : 
+        作者 :   
         <input type="text"
           value={authorText}
+          maxLength={6}
           onChange={e => setauthorText(e.target.value)}
         />
         <br />
-        書名 : 
+        書名 :   
         <input type="text"
           value={titleText}
+          maxLength={10}
           onChange={e => settitleText(e.target.value)}
         />
         <br />
-        卷數 : 
+        卷數 :  
         <input type="text"
           value={journalText}
+          maxLength={4}
           onChange={e => setjournalText(e.target.value)}
         />
       </div>
-
+    <br />
+    <h4>談治國理政封面生成器由<Button size='mini' color='twitter' href='https://twitter.com/MasterOfNMSLese'>
+        <Icon name='twitter'/>@MasterOfNMSLese</Button>
+      製作</h4>
     </div>
   )
 }

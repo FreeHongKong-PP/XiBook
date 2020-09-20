@@ -9,7 +9,10 @@
     "react-dom": "^16.6.1",
     "react-dropzone-uploader": "^2.11.0",
     "react-images-upload": "^1.2.8",
-    "react-scripts": "^3.4.3"
+    "react-scripts": "^3.4.3",
+    "react-switch": "^5.0.1",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^1.2.1"
   },
   "scripts": {
     "dev": "set BROWSER = none && react-scripts start",
