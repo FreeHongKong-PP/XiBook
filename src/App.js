@@ -20,33 +20,8 @@ function chunk(str, n, d) {
   return ret.join(d)
 };
 
-// We resize the canvas down when saving on retina devices otherwise the image
-// will be double or triple the preview size.
-function getResizedCanvas(canvas, newWidth, newHeight) {
-  const tmpCanvas = document.createElement("canvas");
-  tmpCanvas.width = newWidth;
-  tmpCanvas.height = newHeight;
-
-  const ctx = tmpCanvas.getContext("2d");
-  ctx.drawImage(
-    canvas,
-    0,
-    0,
-    canvas.width,
-    canvas.height,
-    0,
-    0,
-    newWidth,
-    newHeight
-  );
-
-  return tmpCanvas;
-}
-
 function generateDownload(canvas) {
-  const newCanvas = getResizedCanvas(canvas,canvas.width,canvas.width);
-
-  newCanvas.toBlob(
+  canvas.toBlob(
     blob => {
       const previewUrl = window.URL.createObjectURL(blob);
 
