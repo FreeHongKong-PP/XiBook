@@ -202,7 +202,6 @@ function App() {
         color :'yellow'
         }}>談治國理政封面生成器</Header>
       <Button
-        disabled={!completedCrop?.width || !completedCrop?.height}
         onClick={() =>
           generateDownload(canvas.current, completedCrop)
         }
