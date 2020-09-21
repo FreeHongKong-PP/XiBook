@@ -1,8 +1,37 @@
-# 談治國理政封面生成器
+<h1 align="center">Welcome to Xi Book 👋</h1>
+<p>
+  <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-blue.svg?cacheSeconds=2592000" />
+  <a href="#" target="_blank">
+    <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
+  </a>
+  <a href="https://twitter.com/MasterOfNMSLese" target="_blank">
+    <img alt="Twitter: MasterOfNMSLese" src="https://img.shields.io/twitter/follow/MasterOfNMSLese.svg?style=social" />
+  </a>
+</p>
 
-This is the repo for 談治國理政封面生成器, you can download the source code for your own use.
+> Xi Book Generator
 
-## Deploy Your Own
-1. `npm install`
-1. `npm run dev`
+### 🏠 [Homepage](xi-book.vercel.app)
+
+## Install
+
+```sh
+npm install
+```
+
+## Run tests
+
+```sh
+npm run test
+```
+
+## Author
+
+👤 **MasterOfNMSL**
+
+* Twitter: [@MasterOfNMSLese](https://twitter.com/MasterOfNMSLese)
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
 
