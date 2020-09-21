@@ -240,7 +240,7 @@ function App() {
     <br />
     <h4>談治國理政封面生成器由<Button size='mini' color='twitter' href='https://twitter.com/MasterOfNMSLese'>
         <Icon name='twitter'/>@MasterOfNMSLese</Button>
-      製作</h4>      
+      製作<br/>源碼 : <a href="https://github.com/FreeHongKong-PP/XiBook">https://github.com/FreeHongKong-PP/XiBook</a></h4>      
     </Container>    
   )
 }
