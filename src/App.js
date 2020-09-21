@@ -88,9 +88,9 @@ function App() {
       //
       ctx.fillStyle = "#a60203"
       let b = - 0.1;
-      let spineX =  295 ; 
+      let spineX =  305 ; 
       let spineYStart = 85;
-
+      ctx.textAlign = "center"
       //Author Text 
       let authorTextCount = authorText.length;
       let authorTextStep = Math.round((190-spineYStart)/authorTextCount);
@@ -116,18 +116,21 @@ function App() {
         b+=0.01       
       }
 
+      let journalTextCount = journalText.length;
+      let jouralTextStep = Math.round((340-spineYStart+8)/journalTextCount);
+      let journalTextfontSize = journalTextCount>3?11:journalTextCount<3?15:13;
       spineYStart+=8
-      ctx.font = "100 13px Noto Sans SC"
+      ctx.font = "100 "+journalTextfontSize+"px Noto Sans SC"
       for (let j of journalText){
         ctx.setTransform(0.45, b, 0, 1, 0, 0);
         ctx.fillText(j,spineX, spineYStart)
-        spineYStart+=5
+        spineYStart+=jouralTextStep
         b+=0.05  
       }
+      
       // ctx.fillText
       //Book Front Face
       ctx.fillStyle = "#cc021c"
-      ctx.textAlign = "center"
       ctx.setTransform (1, -0.05, 0, 1, 0, 0);
 
       ctx.font = "600 27px Noto Sans SC"       
