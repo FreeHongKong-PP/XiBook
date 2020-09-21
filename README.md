@@ -11,7 +11,7 @@
 
 > Xi Book Generator
 
-### 🏠 [Homepage](xi-book.vercel.app)
+### 🏠 [Homepage](https://xi-book.vercel.app/)
 
 ## Install
 
