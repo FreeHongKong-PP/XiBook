@@ -76,7 +76,7 @@ function App() {
       ctx.setTransform (1, 0, 0, 1, 0, 0);
       ctx.drawImage(image,0,0)      
       ctx.fillStyle = "#fffff7"
-      //Book Vertical Bar
+      //Book Spine Background
       ctx.fillRect(160, 230, 200, 245)
       ctx.setTransform (1, -0.2, 0, 1, 0.2, 0);
       ctx.fillStyle = "#d4d4ca"
@@ -85,7 +85,7 @@ function App() {
       ctx.fillStyle = "#d4d4ca"    
       ctx.fillRect(126,225,27,135)
 
-      //
+      //Book Spine Text
       ctx.fillStyle = "#a60203"
       let b = - 0.1;
       let spineX =  305 ; 
@@ -128,7 +128,6 @@ function App() {
         b+=0.05  
       }
       
-      // ctx.fillText
       //Book Front Face
       ctx.fillStyle = "#cc021c"
       ctx.setTransform (1, -0.05, 0, 1, 0, 0);
@@ -142,11 +141,6 @@ function App() {
       ctx.font = "100 13px Noto Sans SC"
       ctx.fillText(chunk(journalText,1,' '), 280, 335)
 
-      // ctx.setTransform (1, 0, 0, 1, 0, 0);
-      // if(authorPicture) ctx.drawImage(authorPicture,0,0)
-      // ctx.fillStyle = '#fffff7';
-      // ctx.fillRect(225, 50, 120, 150);
-      // clipArc(ctx, 280, 115, 120, 40);
       if (!completedCrop  || !imgRef.current) {
         return;
       }
@@ -155,6 +149,12 @@ function App() {
   
       const scaleX = imageCurrentRef.naturalWidth / imageCurrentRef.width;
       const scaleY = imageCurrentRef.naturalHeight / imageCurrentRef.height;
+      
+      let dim = 35 ;
+      // ctx.beginPath();
+      // ctx.arc((225+dim*4)/2, (70+dim*4)/2, 2 * dim, 0, Math.PI*2, true);  
+      // ctx.closePath();
+      // ctx.clip();
       ctx.drawImage(
         imageCurrentRef,
         crop.x * scaleX,
@@ -163,9 +163,10 @@ function App() {
         crop.height * scaleY,
         225,
         70,
-        120,
-        160
-      );   
+        dim*3,
+        dim*4
+      );     
+      // ctx.restore();
     }
 
 
